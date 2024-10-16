@@ -6,16 +6,13 @@ from pathlib import Path
 
 import httpx
 
-mirror_config = Path('./mirrors.toml')
+config = Path('./config.toml')
 mirrors: list[dict[str, str]] = []
 
-target_base_url = 'https://gitea.sorashu.moe/api/v1'
-origin_base_url = 'https://api.github.com'
+target_base_url = ''
+origin_base_url = ''
 
-user = 'xxx'
-password = '<PASSWORD>'
-
-target_client = httpx.AsyncClient(auth=(user, password), timeout=None)
+target_client = httpx.AsyncClient(timeout=None)
 origin_client = httpx.AsyncClient(timeout=None)
 
 
@@ -124,21 +121,39 @@ async def update_repo(origin, origin_url, target):
 async def update_mirror(_mirror):
     assert _mirror.get('type') in ['repo', 'org'], '类型必须为repo或者org'
     assert _mirror.get('origin'), '镜像源名字不为空'
-    assert _mirror.get('target'), '镜像目标名字不为空'
+    if not _mirror.get('target'):
+        _mirror['target'] = _mirror['origin']
+    # assert _mirror.get('target'), '镜像目标名字不为空'
     if _mirror['type'] == 'repo':
-        print(f'---更新Repo{_mirror["origin"]}---')
+        print(f'---更新Repo:{_mirror["origin"]}---')
         await update_repo(_mirror['origin'], _mirror.get('url'), _mirror['target'])
         # print(result)
     elif _mirror['type'] == 'org':
-        print(f'---更新Org{_mirror["origin"]}---')
+        print(f'---更新Org:{_mirror["origin"]}---')
         await update_org(_mirror['origin'], _mirror['target'])
 
 
 async def main():
-    if not mirror_config.exists():
+    global target_base_url, origin_base_url, target_client
+    if not config.exists():
         raise FileNotFoundError("没有找到配置文件")
-    data = tomllib.load(mirror_config.open('rb'))
-    assert data.get('mirrors'), '数据应当包含 mirrors'
+    data = tomllib.load(config.open('rb'))
+
+    assert data.get('config'), '配置文件应当包含 config'
+
+    target_base_url = data['config'].get('target_base_url')
+    origin_base_url = data['config'].get('origin_base_url')
+
+    assert bool(target_base_url) and bool(origin_base_url), 'config 下应当包含 target_base_url 和 origin_base_url'
+
+    token = data['config'].get('token')
+    assert token, 'config 下应当包含 token 用于认证'
+    target_client = httpx.AsyncClient(timeout=None, headers={
+        'Authorization': f'token {token}'
+    })
+    resp = await target_client.get(f"{target_base_url}/user")
+    assert resp.status_code == 200, '认证成功后应当能正确获取当前用户数据'
+    assert data.get('mirrors'), '配置文件应当包含 mirrors'
     for mirror in data['mirrors']:
         try:
             await update_mirror(mirror)

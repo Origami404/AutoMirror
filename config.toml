@@ -1,0 +1,23 @@
+[config]
+target_base_url = "https://gitea.sorashu.moe/api/v1"
+origin_base_url = "https://api.github.com"
+token = ""
+
+[[mirrors]]
+type = "org"
+origin = "AutoMirror-Test"
+
+[[mirrors]]
+type = "repo"
+origin = "Countdowner"
+url = "https://github.com/syhanjin/Countdowner.git"
+target = "Test_Org"
+
+#[[mirrors]]
+#type = "repo"
+#origin = "HITSZ-OpenDS"
+#url = "https://github.com/Mor-Li/HITSZ-OpenDS.git"
+#
+#[[mirrors]]
+#type = "org"
+#origin = "HITSZ-OpenCS"
