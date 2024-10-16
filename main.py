@@ -3,8 +3,12 @@ import asyncio
 import tomllib
 from urllib.parse import urlparse
 from pathlib import Path
+import argparse
 
 import httpx
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--config', type=Path, default=Path('./config.toml'), help='配置文件路径')
 
 config = Path('./config.toml')
 mirrors: list[dict[str, str]] = []
@@ -162,4 +166,8 @@ async def main():
 
 
 if __name__ == '__main__':
+    import sys
+    args = parser.parse_args(sys.argv)
+    config = args['config']
+
     asyncio.run(main())
