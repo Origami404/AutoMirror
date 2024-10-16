@@ -8,7 +8,7 @@ import argparse
 import httpx
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', type=Path, default=Path('./config.toml'), help='配置文件路径')
+parser.add_argument('--config', type=Path, default=Path('./config.toml'), help='同步用配置文件路径')
 
 config = Path('./config.toml')
 mirrors: list[dict[str, str]] = []
