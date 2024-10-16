@@ -1,0 +1,10 @@
+[[mirrors]]
+type = "org"
+origin = "AutoMirror-Test"
+target = "AutoMirror-Test"
+
+[[mirrors]]
+type = "repo"
+origin = "HITSZ-OpenDS"
+url = "https://github.com/Mor-Li/HITSZ-OpenDS.git"
+target = "HITSZ-OpenDS"
